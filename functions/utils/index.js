@@ -6,4 +6,8 @@ function mapIdArray(arr) {
     return result;
 }
 
-module.exports = { mapIdArray };
+function replaceSpaces(inputString) {
+    return inputString.replace(/ /g, "%20");
+}
+
+module.exports = { mapIdArray, replaceSpaces };

@@ -1,6 +1,7 @@
 /* eslint-disable */
 const { onRequest } = require("firebase-functions/v2/https");
 const { getFirestore } = require("firebase-admin/firestore");
+const { replaceSpaces } = require('../utils')
 
 exports.addMovie = onRequest(async (req, res) => {
     try {
@@ -119,6 +120,65 @@ exports.unmarkMovieAsWatched = onRequest(async (req, res) => {
         });
 
         res.status(200).json({ result: `Movie Id ${req.body.movie_id} moved.` });
+    } catch (error) {
+        res.status(500).json({ error: "Internal server error: " + error });
+    }
+});
+
+exports.searchMovie = onRequest(async (req, res) => {
+    try {
+        // Check if query is provided in the request body
+        if (!req.body.query) {
+            res.status(400).json({ error: "Query is required in the request body." });
+            return;
+        }
+
+        formattedQuery = replaceSpaces(req.body.query)
+
+        // TODO: MODIFY THIS
+        const url = `https://api.themoviedb.org/3/search/movie?query=${formattedQuery}&include_adult=false&language=en-US&page=1`;
+        const options = {
+          method: 'GET',
+          headers: {
+            accept: 'application/json',
+            Authorization: `Bearer ${process.env.AUTHORIZATION_KEY}`
+          }
+        };
+     
+        // Search TMDB
+        // TODO: Pagination
+        const response = await fetch(url, options)
+        const jsonResponse = await response.json();
+
+        res.status(200).json({ data: jsonResponse });
+    } catch (error) {
+        res.status(500).json({ error: "Internal server error: " + error });
+    }
+});
+
+exports.getMovieById = onRequest(async (req, res) => {
+    try {
+        // Check if movie Id is provided in the request body
+        if (!req.body.movie_id) {
+            res.status(400).json({ error: "Movie Id is required in the request body." });
+            return;
+        }
+
+        // TODO: MODIFY THIS
+        const url = `https://api.themoviedb.org/3/movie/${req.body.movie_id}?language=en-US`;
+        const options = {
+            method: 'GET',
+            headers: {
+                accept: 'application/json',
+                Authorization: `Bearer ${process.env.AUTHORIZATION_KEY}`
+            }
+        };
+     
+        // Get movie data
+        const response = await fetch(url, options)
+        const movieData = await response.json();
+
+        res.status(200).json({ data: movieData });
     } catch (error) {
         res.status(500).json({ error: "Internal server error: " + error });
     }

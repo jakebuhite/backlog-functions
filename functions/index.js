@@ -32,3 +32,7 @@ exports.addMovie = movies.addMovie;
 exports.markMovieAsWatched = movies.markMovieAsWatched;
 
 exports.unmarkMovieAsWatched = movies.unmarkMovieAsWatched;
+
+exports.searchMovie = movies.searchMovie;
+
+exports.getMovieById = movies.getMovieById;
